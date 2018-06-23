@@ -22,10 +22,9 @@ function doGet(e) {
     const xml = getNewsXml(maxResult)
      , json = XML_to_JSON(xml)
      , contentObj = json['rss']['channel']
-     , content = JSON.stringify(contentObj)
      ;
-    cache.put("news_maxResult"+maxResult, content, 1800); // cache for 30 minutes
-    payload = content;
+    payload = JSON.stringify(contentObj);
+    cache.put("news_maxResult"+maxResult, payload, 1800); // cache for 30 minutes
   }
 
   return ContentService.createTextOutput(payload);

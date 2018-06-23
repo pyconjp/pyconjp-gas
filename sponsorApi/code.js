@@ -1,23 +1,39 @@
+/**
+ * Endpoint of api
+ * @param None
+ * @returns {Object} TextOutput 
+ */
 function doGet(e){
   const params = e.parameter
-    , kind = params["kind"] || "all"
     , stage = params["stage"] || "dev"
-    , sponsors = getSponsors(stage)
+    , nocache = params["noCache"] || false
+    , cache = CacheService.getScriptCache()
     ;
-  const res = {
-    "kind": kind,
-    "stage": stage,
-    "data": sponsors
+  
+  // Check cache
+  const cached = cache.get("sponsor_"+stage);
+  var payload;
+
+  if (cached != null && !nocache) {
+     Logger.log('use cache');
+     payload = cached;
+  } else {
+    Logger.log('no cache. getting from spreadsheet');
+    
+    const sponsors = getSponsors(stage);
+    payload = JSON.stringify({ stage: stage, data: sponsors });
+
+    cache.put("sponsor_"+stage, payload, 300); // cache for 5 minutes
   }
   
-  return ContentService.createTextOutput(JSON.stringify(res));
+  return ContentService.createTextOutput(payload);
 }
+
 
 function getSponsors(stage){
   const EXCLUDED_KEY = ["logoDriveUrl"];
   const id = spreadsheetId()
-    , name = stage
-    , sheet = SpreadsheetApp.openById(id).getSheetByName(name)
+    , sheet = SpreadsheetApp.openById(id).getSheetByName(stage)
     , data = sheet.getDataRange().getValues()
     , keys = data[0]
     , vals = data.slice(1)
@@ -27,17 +43,24 @@ function getSponsors(stage){
     ;
   
   vals.forEach(function(v){
-    sponsor = {}
-    keys.forEach(function(k, i){
-      if(EXCLUDED_KEY.indexOf(k) > -1){return} 
-      sponsor[k] = v[i];
-    })
-    sponsors.push(sponsor);
+	sponsor = {}
+    var k;
+    for(var i = 0; i < keys.length; i++){
+      k = keys[i];
+      if(k === "stateId" && v[i] !== 1){ break }
+      if(EXCLUDED_KEY.indexOf(k) > -1){ continue }
+     
+		sponsor[k] = v[i];
+    }
+	sponsors.push(sponsor);
   })
   
   return sponsors;
 }
 
 function debug() {
-  Logger.log(getSponsors("dev"));
+  e = {'parameter': {'stage': "prod", 'noCache': true}}
+  res = doGet(e);
+
+  Logger.log(res.getContent());
 }
