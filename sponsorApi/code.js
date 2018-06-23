@@ -1,19 +1,22 @@
 function doGet(e){
   const params = e.parameter
-    , env = 'dev' // paramsから受け取る予定
-    , sponsors = getSponsors(env)
+    , kind = params["kind"] || "all"
+    , stage = params["stage"] || "dev"
+    , sponsors = getSponsors(stage)
     ;
   const res = {
-    "kind": "all",
+    "kind": kind,
+    "stage": stage,
     "data": sponsors
   }
   
   return ContentService.createTextOutput(JSON.stringify(res));
 }
 
-function getSponsors(env){
+function getSponsors(stage){
+  const EXCLUDED_KEY = ["logoDriveUrl"];
   const id = spreadsheetId()
-    , name = env
+    , name = stage
     , sheet = SpreadsheetApp.openById(id).getSheetByName(name)
     , data = sheet.getDataRange().getValues()
     , keys = data[0]
@@ -24,16 +27,17 @@ function getSponsors(env){
     ;
   
   vals.forEach(function(v){
-    sponsor = {}
-    keys.forEach(function(k, i){
-      sponsor[k] = v[i];
-    })
-    sponsors.push(sponsor);
+	sponsor = {}
+	keys.forEach(function(k, i){
+        if(EXCLUDED_KEY.indexOf(k) > -1){return} 
+		sponsor[k] = v[i];
+	})
+	sponsors.push(sponsor);
   })
   
   return sponsors;
 }
 
 function debug() {
-  Logger.log(getSponsors());
+  Logger.log(getSponsors("dev"));
 }
