@@ -27,12 +27,12 @@ function getSponsors(stage){
     ;
   
   vals.forEach(function(v){
-	sponsor = {}
-	keys.forEach(function(k, i){
-        if(EXCLUDED_KEY.indexOf(k) > -1){return} 
-		sponsor[k] = v[i];
-	})
-	sponsors.push(sponsor);
+    sponsor = {}
+    keys.forEach(function(k, i){
+      if(EXCLUDED_KEY.indexOf(k) > -1){return} 
+      sponsor[k] = v[i];
+    })
+    sponsors.push(sponsor);
   })
   
   return sponsors;
