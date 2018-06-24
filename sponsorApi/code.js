@@ -43,16 +43,15 @@ function getSponsors(stage){
     ;
   
   vals.forEach(function(v){
-	sponsor = {}
+  sponsor = {}
     var k;
     for(var i = 0; i < keys.length; i++){
       k = keys[i];
       if(k === "stateId" && v[i] !== 1){ break }
       if(EXCLUDED_KEY.indexOf(k) > -1){ continue }
-     
-		sponsor[k] = v[i];
+      sponsor[k] = v[i];
     }
-	sponsors.push(sponsor);
+  sponsors.push(sponsor);
   })
   
   return sponsors;
