@@ -14,16 +14,13 @@ function doGet(e) {
   const cached = cache.get("news_maxResult"+maxResult);
   var payload;
 
-  if (cached != null && !nocache) {
-     Logger.log('use cache');
-     payload = cached;
+  if (cached !== null && !nocache) {
+    Logger.log('use cache');
+    payload = cached;
   } else {
     Logger.log('no cache. fetching xml');
-    const xml = getNewsXml(maxResult)
-     , json = XML_to_JSON(xml)
-     , contentObj = json['rss']['channel']
-     ;
-    payload = JSON.stringify(contentObj);
+    const xml = getNewsXml(maxResult);
+    payload = extractJsonStringFromXml(xml);
     cache.put("news_maxResult"+maxResult, payload, 1800); // cache for 30 minutes
   }
 
@@ -38,8 +35,9 @@ function doGet(e) {
  */
 function getNewsXml(maxResult) {
   const endpoint = 'http://pyconjp.blogspot.com/feeds/posts/default/-/pyconjp2018?alt=rss&max-results=' + maxResult
-   var xml = UrlFetchApp.fetch(endpoint);
-   return xml;
+    , xml = UrlFetchApp.fetch(endpoint)
+    ;
+    return xml;
 };
 
 
@@ -49,12 +47,26 @@ function getNewsXml(maxResult) {
  * @param {string} xml The XML to parse.
  * @returns {Object} The parsed XML.
  */
-function XML_to_JSON(xml) { 
-  var doc = XmlService.parse(xml);
+function xmlToJson(xml) { 
+  const doc = XmlService.parse(xml)
+    , root = doc.getRootElement()
+    ;
   var result = {};
-  var root = doc.getRootElement();
   result[root.getName()] = elementToJSON(root);
   return result;
+}
+
+
+/**
+ * @param {string} xml
+ * @returns {string} jsonString 
+ */
+function extractJsonStringFromXml(xml){
+  const json = xmlToJson(xml)
+    , contentObj = json['rss']['channel']
+    ;
+  jsonString = JSON.stringify(contentObj);
+  return jsonString;
 }
 
 
@@ -65,17 +77,13 @@ function XML_to_JSON(xml) {
  * @returns {Object} The parsed element.
  */
 function elementToJSON(element) {
-  var result = {};
-  // Child elements.
   const children = element.getChildren()
   
   if (children.length == 0){
-    if (element.getText()) {
-      result = element.getText();
-    }
-    return result;
+    return element.getText() || {} 
   }
   
+  var result = {};
   children.forEach(function(child) {
     var key = child.getName();
     var value = elementToJSON(child);

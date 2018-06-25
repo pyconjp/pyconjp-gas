@@ -14,7 +14,7 @@ function doGet(e){
   const cached = cache.get("sponsor_"+stage);
   var payload;
 
-  if (cached != null && !nocache) {
+  if (cached !== null && !nocache) {
      Logger.log('use cache');
      payload = cached;
   } else {
@@ -43,12 +43,12 @@ function getSponsors(stage){
     ;
   
   vals.forEach(function(v){
-  sponsor = {}
+    sponsor = {};
     var k;
     for(var i = 0; i < keys.length; i++){
       k = keys[i];
-      if(k === "stateId" && v[i] !== 1){ break }
-      if(EXCLUDED_KEY.indexOf(k) > -1){ continue }
+      if(k === "stateId" && v[i] !== 1) break 
+      if(EXCLUDED_KEY.indexOf(k) > -1) continue 
       sponsor[k] = v[i];
     }
   sponsors.push(sponsor);
@@ -58,7 +58,7 @@ function getSponsors(stage){
 }
 
 function debug() {
-  e = {'parameter': {'stage': "prod", 'noCache': true}}
+  e = {'parameter': {'stage': "prod", 'noCache': false}}
   res = doGet(e);
 
   Logger.log(res.getContent());
