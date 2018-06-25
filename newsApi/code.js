@@ -77,7 +77,8 @@ function extractJsonStringFromXml(xml){
  * @returns {Object} The parsed element.
  */
 function elementToJSON(element) {
-  const children = element.getChildren()
+  const LIST_ELEMENT_NAMES = ['item']
+    , children = element.getChildren()
   
   if (children.length == 0){
     return element.getText() || {} 
@@ -88,13 +89,18 @@ function elementToJSON(element) {
     var key = child.getName()
       , value = elementToJSON(child)
       ;
+      
     if (result[key]) {
       if (!(result[key] instanceof Array)) {
         result[key] = [result[key]];
       }
       result[key].push(value);
     } else {
-      result[key] = value;
+      if (LIST_ELEMENT_NAMES.indexOf(key) > -1) {
+        result[key] = [value];
+      } else {
+        result[key] = value;
+      }
     }
   });
   return result;
