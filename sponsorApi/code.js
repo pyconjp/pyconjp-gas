@@ -51,7 +51,7 @@ function getSponsors(stage){
       if(EXCLUDED_KEY.indexOf(k) > -1) continue 
       sponsor[k] = v[i];
     }
-  sponsors.push(sponsor);
+    sponsors.push(sponsor);
   })
   
   return sponsors;

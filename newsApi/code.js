@@ -85,8 +85,9 @@ function elementToJSON(element) {
   
   var result = {};
   children.forEach(function(child) {
-    var key = child.getName();
-    var value = elementToJSON(child);
+    var key = child.getName()
+      , value = elementToJSON(child)
+      ;
     if (result[key]) {
       if (!(result[key] instanceof Array)) {
         result[key] = [result[key]];
