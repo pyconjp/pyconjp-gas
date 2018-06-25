@@ -79,6 +79,7 @@ function extractJsonStringFromXml(xml){
 function elementToJSON(element) {
   const LIST_ELEMENT_NAMES = ['item']
     , children = element.getChildren()
+    ;
   
   if (children.length == 0){
     return element.getText() || {} 
